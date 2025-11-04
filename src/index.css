@@ -1,0 +1,49 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 3%;
+    --foreground: 144 100% 85%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 144 100% 85%;
+
+    --popover: 0 0% 5%;
+    --popover-foreground: 144 100% 85%;
+
+    --primary: 144 100% 50%;
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 180 100% 50%;
+    --secondary-foreground: 0 0% 0%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 144 50% 60%;
+
+    --accent: 144 100% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 144 30% 20%;
+    --input: 144 30% 15%;
+    --ring: 144 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Matrix theme colors */
+    --matrix-green: 144 100% 50%;
+    --matrix-green-dark: 144 100% 30%;
+    --matrix-cyan: 180 100% 50%;
+    --glow-green: 144 100% 50%;
+    --glow-cyan: 180 100% 50%;
+  }
+}
