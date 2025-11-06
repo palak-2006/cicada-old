@@ -7,24 +7,22 @@ import Play from "./pages/Play.jsx";
 import "./index.css";
 import { Toaster, toast } from "sonner";
 import "./index.css";
+import Level1 from "./pages/levels/Level1.jsx";
+import Level2 from "./pages/levels/Level2.jsx";
+import Level3 from "./pages/levels/Level3.jsx";
+import Level4 from "./pages/levels/Level4.jsx";
 
 const queryClient = new QueryClient();
 
-// 🔒 Component to block basic inspect shortcuts
 const DevToolsBlocker = () => {
   useEffect(() => {
     const handleContextMenu = (e) => e.preventDefault();
 
     const handleKeyDown = (e) => {
-      // Block F12
       if (e.key === "F12") e.preventDefault();
-
-      // Block Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C
       if (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key.toUpperCase())) {
         e.preventDefault();
       }
-
-      // Block Ctrl+U (view source)
       if (e.ctrlKey && e.key.toUpperCase() === "U") {
         e.preventDefault();
       }
@@ -58,8 +56,8 @@ const DevToolsGuard = () => {
           devtoolsOpen = true;
           toast.warning("⚠️ Developer Tools detected! Closing for security reasons...");
           setTimeout(() => {
-            navigate("/"); // redirect to home
-            window.location.reload(); // reload the page
+            navigate("/");  
+            window.location.reload(); 
           }, 1000);
         }
       } else {
@@ -82,6 +80,10 @@ const App = () => (
       <Toaster richColors position="bottom-right" />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/level1" element={<Level1 />} />
+        <Route path="/level2" element={<Level2 />} />
+        <Route path="/level3" element={<Level3 />} />
+        <Route path="/level4" element={<Level4 />} />
         <Route path="/play" element={<Play />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

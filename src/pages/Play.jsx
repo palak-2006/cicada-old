@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import Navbar from "../components/Navbar";
@@ -9,18 +9,32 @@ import { toast } from "sonner";
 
 const Play = () => {
   const navigate = useNavigate();
-  const currentLevel = 1;
+  const { user, setUser } = useUserStore();
+  const [localUser, setLocalUser] = useState(null);
+  const [countdown, setCountdown] = useState(null);
+  const [currentLevel, setCurrentLevel] = useState(1);
   const levelRefs = useRef({});
-  const { user } = useUserStore();
-
-  // 🚫 Redirect if user not logged in
   useEffect(() => {
-    if (!user) {
-      navigate("/");
+    if (user && user.current_level) {
+      setLocalUser(user);
+      setCurrentLevel(user.current_level);
+    } else {
+      const stored = localStorage.getItem("Team");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setUser(parsed);
+        setLocalUser(parsed);
+        setCurrentLevel(parsed.current_level || 1);
+      } else {
+        navigate("/");
+      }
     }
-  }, [user, navigate]);
+  }, [user, setUser, navigate]);
 
-  // 🎯 Auto-scroll to current level
+  useEffect(() => {
+    if (!localUser) return;
+  }, [localUser]);
+
   useEffect(() => {
     const el = levelRefs.current[currentLevel];
     if (!el) return;
@@ -43,10 +57,8 @@ const Play = () => {
     requestAnimationFrame(smoothScroll);
   }, [currentLevel]);
 
-  // 🧠 DevTools detection and redirect
   useEffect(() => {
     let devToolsOpen = false;
-
     const detectDevTools = () => {
       const threshold = 160;
       const widthDiff = window.outerWidth - window.innerWidth > threshold;
@@ -65,16 +77,44 @@ const Play = () => {
         devToolsOpen = false;
       }
     };
-
     const interval = setInterval(detectDevTools, 1000);
     return () => clearInterval(interval);
   }, [navigate]);
 
   const handlePlayLevel = (level) => {
-    // wait for 5sec then navigate
-    setTimeout(() => {
-      navigate(`/level${level}`);
-    }, 500);
+    if (!localUser) {
+      toast.error("You must be logged in to play!");
+      navigate("/");
+      return;
+    }
+
+    if (level > localUser.current_level) {
+      toast.error("This level is locked!");
+      return;
+    }
+
+    const updated =
+      level > localUser.current_level
+        ? { ...localUser, current_level: level }
+        : { ...localUser };
+
+    setUser(updated);
+    localStorage.setItem("Team", JSON.stringify(updated));
+    setLocalUser(updated);
+
+    let count = 3;
+    setCountdown(count);
+
+    const timer = setInterval(() => {
+      count -= 1;
+      setCountdown(count);
+
+      if (count <= 0) {
+        clearInterval(timer);
+        setCountdown(null);
+        setTimeout(() => navigate(`/level${level}`), 200);
+      }
+    }, 1000);
   };
 
   const levelPositions = [
@@ -95,13 +135,19 @@ const Play = () => {
         className="fixed inset-0 opacity-20 bg-center bg-no-repeat bg-contain"
         style={{ backgroundImage: `url(${cicadaBg})`, zIndex: 1 }}
       />
+      {countdown && (
+        <div className="fixed inset-0 flex items-center justify-center z-[100] bg-black/80 backdrop-blur-md">
+          <span className="text-green-400 font-mono text-[8rem] font-bold animate-pulse drop-shadow-[0_0_20px_rgba(34,197,94,0.8)]">
+            {countdown}
+          </span>
+        </div>
+      )}
 
       <div className="relative z-10 pt-24 px-4">
         <div
           className="relative w-full max-w-4xl mx-auto"
           style={{ height: "200vh" }}
         >
-          {/* Animated dotted green path */}
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none"
             viewBox="0 0 100 100"
@@ -133,11 +179,12 @@ const Play = () => {
             }
           `}</style>
 
-          {/* Level Nodes */}
+          {/* Levels */}
           {[1, 2, 3, 4, 5, 6, 7].map((level, index) => {
             const isUnlocked = level <= currentLevel;
             const isCurrent = level === currentLevel;
             const pos = levelPositions[index];
+
             return (
               <div
                 key={level}

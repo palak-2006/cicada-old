@@ -35,7 +35,7 @@ const AuthModal = ({ isOpen, onClose, mode, onToggleMode }) => {
 
     if (mode === "signin") {
       try {
-        const res = await fetch("https://cicada-backend.onrender.com/api/team/login", {
+        const res = await fetch(`${import.meta.env.VITE_DEV_ENDPOINT}/api/team/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -44,8 +44,8 @@ const AuthModal = ({ isOpen, onClose, mode, onToggleMode }) => {
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.err || "Login failed");
-        localStorage.setItem("Team", JSON.stringify(data));
-        setUser(data);
+        localStorage.setItem("Team", JSON.stringify(data.team));
+        setUser(data.team);
         toast.success("Logged in successfully!");
         navigate("/play");
         onClose();
@@ -78,7 +78,7 @@ const AuthModal = ({ isOpen, onClose, mode, onToggleMode }) => {
       }
 
       try {
-        const res = await fetch("https://cicada-backend.onrender.com/api/team/signup", {
+        const res = await fetch(`${import.meta.env.VITE_DEV_ENDPOINT}/api/team/signup`, {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -96,8 +96,8 @@ const AuthModal = ({ isOpen, onClose, mode, onToggleMode }) => {
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.err || "Signup failed");
-        localStorage.setItem("Team", JSON.stringify(data));
-        setUser(data);
+        localStorage.setItem("Team", JSON.stringify(data.team));
+        setUser(data.team);
         toast.success("Welcome aboard! Team registered successfully.");
         navigate("/play");
         onClose();
