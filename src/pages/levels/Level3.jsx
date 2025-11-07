@@ -93,14 +93,17 @@ const Level3 = () => {
       if (data.correct) {
         toast.success(data.msg || "Level 2 completed!");
 
+        const newLevel = data.newLevel ?? user.current_level + 1;
+        console.log(`Navigating to Level ${newLevel}, current level: ${user.current_level}`);
         const updatedUser = {
           ...user,
-          current_level: data.newLevel ?? user.current_level + 1,
+          current_level:
+            newLevel > user.current_level ? newLevel : user.current_level,
         };
+
         setUser(updatedUser);
         localStorage.setItem("Team", JSON.stringify(updatedUser));
-
-        setTimeout(() => navigate("/play"), 1200);
+        setTimeout(() => navigate("/play"), 1000);
       } else {
         toast.error(data.msg || "Incorrect answer. Try again.");
       }

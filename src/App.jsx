@@ -11,6 +11,9 @@ import Level1 from "./pages/levels/Level1.jsx";
 import Level2 from "./pages/levels/Level2.jsx";
 import Level3 from "./pages/levels/Level3.jsx";
 import Level4 from "./pages/levels/Level4.jsx";
+import Level6 from "./pages/levels/Level6.jsx";
+import Level7 from "./pages/levels/Level7.jsx";
+import Level5 from "./pages/levels/Level5.jsx";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +87,9 @@ const App = () => (
         <Route path="/level2" element={<Level2 />} />
         <Route path="/level3" element={<Level3 />} />
         <Route path="/level4" element={<Level4 />} />
+        <Route path="/level5" element={<Level5 />} />
+        <Route path="/level6" element={<Level6 />} />
+        <Route path="/level7" element={<Level7 />} />
         <Route path="/play" element={<Play />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -19,21 +19,21 @@ const Level2 = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [countdown, setCountdown] = useState(null);
 
-  // ===== Load Part B Access on Mount =====
   useEffect(() => {
     const checkPartACompletion = async () => {
       try {
-        // check localStorage first for instant UX
         const partAStatus = localStorage.getItem("level2_partA_done");
         if (partAStatus === "true") {
           setShowQuestion2(true);
           return;
         }
 
-        // otherwise verify from backend (optional but safer)
-        const res = await fetch(`${import.meta.env.VITE_DEV_ENDPOINT}/api/level-status/2`, {
-          credentials: "include",
-        });
+        const res = await fetch(
+          `${import.meta.env.VITE_DEV_ENDPOINT}/api/level-status/2`,
+          {
+            credentials: "include",
+          }
+        );
         if (res.ok) {
           const data = await res.json();
           if (data?.subpartACompleted) {
@@ -49,7 +49,6 @@ const Level2 = () => {
     checkPartACompletion();
   }, []);
 
-  // ===== Common Countdown Logic =====
   const startCountdown = (callback) => {
     let counter = 5;
     setCountdown(counter);
@@ -64,7 +63,6 @@ const Level2 = () => {
     }, 1000);
   };
 
-  // ===== PART A (Q1) Submission =====
   const handleSubmitQuestion1 = () => {
     if (!question1Answer.trim()) {
       toast.error("Please enter your answer before submitting.");
@@ -73,16 +71,19 @@ const Level2 = () => {
     startCountdown(async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`${import.meta.env.VITE_DEV_ENDPOINT}/api/submit/ans`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            ans: question1Answer,
-            level: 2,
-            subpart: "a",
-          }),
-        });
+        const res = await fetch(
+          `${import.meta.env.VITE_DEV_ENDPOINT}/api/submit/ans`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              ans: question1Answer,
+              level: 2,
+              subpart: "a",
+            }),
+          }
+        );
 
         const data = await res.json();
 
@@ -112,16 +113,19 @@ const Level2 = () => {
     startCountdown(async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`${import.meta.env.VITE_DEV_ENDPOINT}/api/submit/ans`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            ans: question2Answer,
-            level: 2,
-            subpart: "b",
-          }),
-        });
+        const res = await fetch(
+          `${import.meta.env.VITE_DEV_ENDPOINT}/api/submit/ans`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              ans: question2Answer,
+              level: 2,
+              subpart: "b",
+            }),
+          }
+        );
 
         const data = await res.json();
 
@@ -129,14 +133,19 @@ const Level2 = () => {
           toast.success(data.msg || "Level 2 completed!");
           localStorage.removeItem("level2_partA_done");
 
+          const newLevel = data.newLevel ?? user.current_level + 1;
+          console.log(
+            `Navigating to Level ${newLevel}, current level: ${user.current_level}`
+          );
           const updatedUser = {
             ...user,
-            current_level: data.newLevel ?? user.current_level + 1,
+            current_level:
+              newLevel > user.current_level ? newLevel : user.current_level,
           };
+
           setUser(updatedUser);
           localStorage.setItem("Team", JSON.stringify(updatedUser));
-
-          setTimeout(() => navigate("/play"), 1200);
+          setTimeout(() => navigate("/play"), 1000);
         } else {
           toast.error(data.msg || "Incorrect answer. Try again.");
         }
@@ -198,13 +207,18 @@ const Level2 = () => {
                     Q-1
                   </h2>
                   <p className="text-green-500 font-mono leading-relaxed mb-4">
-                    You're trying to run a <span className="text-green-400 font-bold">_____</span> none of the{" "}
-                    <span className="text-green-400 font-bold">_______</span> seem to be{" "}
-                    <span className="text-green-400 font-bold">_______</span> with each other.
-                    You've checked your code and all the individual nodes work correctly when{" "}
+                    You're trying to run a{" "}
+                    <span className="text-green-400 font-bold">_____</span> none
+                    of the{" "}
+                    <span className="text-green-400 font-bold">_______</span>{" "}
+                    seem to be{" "}
+                    <span className="text-green-400 font-bold">_______</span>{" "}
+                    with each other. You've checked your code and all the
+                    individual nodes work correctly when{" "}
                     <span className="text-green-400 font-bold">______</span>.
                     What is the most likely issue with your{" "}
-                    <span className="text-green-400 font-bold">______</span> that is causing this problem?
+                    <span className="text-green-400 font-bold">______</span>{" "}
+                    that is causing this problem?
                   </p>
 
                   <Input
@@ -222,7 +236,11 @@ const Level2 = () => {
                       disabled={isLoading || countdown !== null}
                       className="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-3 rounded-lg font-mono shadow-md shadow-green-500/50"
                     >
-                      {countdown !== null ? countdown : isLoading ? "Checking..." : "SUBMIT Q-1"}
+                      {countdown !== null
+                        ? countdown
+                        : isLoading
+                        ? "Checking..."
+                        : "SUBMIT Q-1"}
                     </Button>
                   )}
                 </div>
@@ -237,14 +255,28 @@ const Level2 = () => {
                       Q-2
                     </h2>
                     <p className="text-green-500 font-mono leading-relaxed mb-4">
-                      You have a <span className="text-green-400 font-bold">______</span> with two frames,{" "}
-                      <span className="text-green-400 font-bold">_______</span> and{" "}
-                      <span className="text-green-400 font-bold">__</span>. You're trying to get the{" "}
-                      <span className="text-green-400 font-bold">________</span> from{" "}
-                      <span className="text-green-400 font-bold">__________</span> to{" "}
-                      <span className="text-green-400 font-bold">________</span> but you get an error indicating the{" "}
-                      <span className="text-green-400 font-bold">_________</span> is not available. List possible{" "}
-                      <span className="text-green-400 font-bold">___________</span> for this error.
+                      You have a{" "}
+                      <span className="text-green-400 font-bold">______</span>{" "}
+                      with two frames,{" "}
+                      <span className="text-green-400 font-bold">_______</span>{" "}
+                      and <span className="text-green-400 font-bold">__</span>.
+                      You're trying to get the{" "}
+                      <span className="text-green-400 font-bold">________</span>{" "}
+                      from{" "}
+                      <span className="text-green-400 font-bold">
+                        __________
+                      </span>{" "}
+                      to{" "}
+                      <span className="text-green-400 font-bold">________</span>{" "}
+                      but you get an error indicating the{" "}
+                      <span className="text-green-400 font-bold">
+                        _________
+                      </span>{" "}
+                      is not available. List possible{" "}
+                      <span className="text-green-400 font-bold">
+                        ___________
+                      </span>{" "}
+                      for this error.
                     </p>
 
                     <Input
@@ -260,7 +292,11 @@ const Level2 = () => {
                       disabled={isLoading || countdown !== null}
                       className="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-3 rounded-lg font-mono shadow-md shadow-green-500/50"
                     >
-                      {countdown !== null ? countdown : isLoading ? "Checking..." : "SUBMIT Q-2"}
+                      {countdown !== null
+                        ? countdown
+                        : isLoading
+                        ? "Checking..."
+                        : "SUBMIT Q-2"}
                     </Button>
                   </div>
                 )}

@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 const Level1 = () => {
   const navigate = useNavigate();
-  const { user, setUser } = useUserStore();  
+  const { user, setUser } = useUserStore();
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [showTable, setShowTable] = useState(false);
   const [panelInput, setPanelInput] = useState("");
@@ -67,33 +67,39 @@ const Level1 = () => {
     console.log("Submitting answer:", user);
     setIsLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_DEV_ENDPOINT}/api/submit/ans`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", 
-        body: JSON.stringify({
-          ans: answer,
-          level: parseInt(1),
-        }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_DEV_ENDPOINT}/api/submit/ans`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            ans: answer,
+            level: parseInt(1),
+          }),
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.err || "Submission failed!");
       if (data.correct) {
         toast.success("Correct! Level unlocked.");
+        const newLevel = data.newLevel ?? user.current_level + 1;
+        console.log(
+          `Navigating to Level ${newLevel}, current level: ${user.current_level}`
+        );
         const updatedUser = {
           ...user,
-          current_level: data.newLevel ?? user.current_level + 1,
+          current_level:
+            newLevel > user.current_level ? newLevel : user.current_level,
         };
+
         setUser(updatedUser);
         localStorage.setItem("Team", JSON.stringify(updatedUser));
-
-        setTimeout(() => {
-          navigate("/play");
-        }, 1000);
+        setTimeout(() => navigate("/play"), 1000);
       } else {
         toast.error("Incorrect answer. Try again.");
       }
@@ -109,17 +115,12 @@ const Level1 = () => {
     <div className="min-h-screen bg-black text-green-400 relative overflow-hidden">
       <MatrixRain />
       <Navbar />
-
-      {/* Background Image */}
       <div
         className="fixed inset-0 opacity-10 bg-center bg-no-repeat bg-contain"
         style={{ backgroundImage: `url(${cicadaBg})`, zIndex: 1 }}
       />
-
-      {/* Content */}
       <div className="relative z-10 pt-32 px-4 pb-12">
         <div className="max-w-5xl mx-auto">
-          {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-5xl font-bold text-green-400 font-mono tracking-wider">
               LEVEL 1
@@ -135,7 +136,6 @@ const Level1 = () => {
           </div>
 
           <div className="space-y-8">
-            {/* Mission Briefing */}
             <div className="bg-gray-900/40 backdrop-blur-sm p-6 rounded-lg border-l-4 border-green-500">
               <h2 className="text-2xl font-bold text-green-400 mb-3 font-mono">
                 &gt; MISSION BRIEFING
@@ -146,7 +146,6 @@ const Level1 = () => {
               </p>
             </div>
 
-            {/* Cipher Data */}
             <div className="bg-gray-900/40 backdrop-blur-sm p-6 rounded-lg border-l-4 border-green-600">
               <h2 className="text-2xl font-bold text-green-400 mb-4 font-mono">
                 &gt; ENCRYPTED DATA
@@ -160,7 +159,6 @@ const Level1 = () => {
               </div>
             </div>
 
-            {/* Decode Section */}
             <div className="bg-gray-900/40 backdrop-blur-sm p-6 rounded-lg border-l-4 border-green-500">
               <h2 className="text-2xl font-bold text-green-400 mb-4 font-mono">
                 &gt; DECODE
@@ -183,8 +181,6 @@ const Level1 = () => {
           </div>
         </div>
       </div>
-
-      {/* Slide-in Cipher Panel */}
       <div
         className={`fixed top-0 right-0 h-full bg-gray-900/95 backdrop-blur-md border-l border-green-500/30 transition-transform duration-300 ease-in-out z-50 ${
           isPanelOpen ? "translate-x-0" : "translate-x-full"
@@ -241,7 +237,6 @@ const Level1 = () => {
         </div>
       </div>
 
-      {/* Panel Toggle Button */}
       <button
         onClick={() => setIsPanelOpen(!isPanelOpen)}
         className={`fixed bottom-0 -translate-y-1/2 bg-green-500/20 hover:bg-green-500/30 backdrop-blur-sm border border-green-500/50 text-green-400 p-3 transition-all duration-300 z-40 ${
