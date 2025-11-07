@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 const Navbar = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState("signup");
+  const [countdown, setCountdown] = useState(null);
   const { user, setUser } = useUserStore();
   const navigate = useNavigate();
 
@@ -37,6 +38,23 @@ const Navbar = () => {
     }
   };
 
+  // Countdown before logout
+  const startLogoutCountdown = () => {
+    let counter = 5;
+    setCountdown(counter);
+
+    const interval = setInterval(() => {
+      counter -= 1;
+      if (counter > 0) {
+        setCountdown(counter);
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        handleLogout(); // finally log out
+      }
+    }, 1000);
+  };
+
   return (
     <>
       <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl">
@@ -61,6 +79,7 @@ const Navbar = () => {
                   Play
                 </Button>
               )}
+
               {!user ? (
                 <Button
                   className="bg-green-500 hover:bg-green-600 text-black font-semibold shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-all duration-300"
@@ -70,10 +89,13 @@ const Navbar = () => {
                 </Button>
               ) : (
                 <Button
-                  className="bg-green-500 hover:bg-green-600 text-black font-semibold shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-all duration-300"
-                  onClick={handleLogout}
+                  disabled={countdown !== null}
+                  className={`bg-green-500 hover:bg-green-600 text-black font-semibold shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-all duration-300 ${
+                    countdown ? "opacity-80 cursor-wait" : ""
+                  }`}
+                  onClick={startLogoutCountdown}
                 >
-                  Logout
+                  {countdown ? `Logging out in ${countdown}...` : "Logout"}
                 </Button>
               )}
             </div>

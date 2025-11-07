@@ -16,11 +16,9 @@ import { useNavigate } from "react-router-dom";
 const AuthModal = ({ isOpen, onClose, mode, onToggleMode }) => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  // Common fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setUser, user } = useUserStore();
-  // Signup fields
+  const { setUser } = useUserStore();
   const [teamName, setTeamName] = useState("");
   const [leaderName, setLeaderName] = useState("");
   const [leaderEmail, setLeaderEmail] = useState("");
@@ -29,8 +27,10 @@ const AuthModal = ({ isOpen, onClose, mode, onToggleMode }) => {
   const [member2Name, setMember2Name] = useState("");
   const [member2Email, setMember2Email] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const [countdown, setCountdown] = useState(null);
+  const [isCounting, setIsCounting] = useState(false);
+
+  const handleSubmit = async () => {
     setError("");
 
     if (mode === "signin") {
@@ -107,6 +107,27 @@ const AuthModal = ({ isOpen, onClose, mode, onToggleMode }) => {
     }
   };
 
+  const startCountdown = (e) => {
+    e.preventDefault();
+    if (isCounting) return;
+
+    setIsCounting(true);
+    let counter = 5;
+    setCountdown(counter);
+
+    const interval = setInterval(() => {
+      counter -= 1;
+      if (counter > 0) {
+        setCountdown(counter);
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        setIsCounting(false);
+        handleSubmit();
+      }
+    }, 1000);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-xl bg-gray-900 border-green-500/50 shadow-2xl max-h-[85vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-800 [&::-webkit-scrollbar-thumb]:bg-green-500/50 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-green-500/70 [&>button]:text-green-400 [&>button]:hover:text-green-300 [&>button]:hover:bg-green-500/10">
@@ -121,7 +142,7 @@ const AuthModal = ({ isOpen, onClose, mode, onToggleMode }) => {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+        <form onSubmit={startCountdown} className="space-y-6 mt-4">
           {mode === "signin" ? (
             <>
               <div className="space-y-2">
@@ -278,7 +299,6 @@ const AuthModal = ({ isOpen, onClose, mode, onToggleMode }) => {
             </>
           )}
 
-          {/* ⚠️ Error message here */}
           {error && (
             <p className="text-red-500 text-sm font-medium text-center -mt-2">
               {error}
@@ -287,9 +307,16 @@ const AuthModal = ({ isOpen, onClose, mode, onToggleMode }) => {
 
           <Button
             type="submit"
-            className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-all duration-300"
+            disabled={isCounting}
+            className={`w-full bg-green-500 hover:bg-green-600 text-black font-semibold shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-all duration-300 ${
+              isCounting ? "opacity-80 cursor-wait" : ""
+            }`}
           >
-            {mode === "signin" ? "Sign In" : "Register Team"}
+            {countdown
+              ? `Processing in ${countdown}...`
+              : mode === "signin"
+              ? "Sign In"
+              : "Register Team"}
           </Button>
 
           <div className="text-center text-sm text-gray-400">
